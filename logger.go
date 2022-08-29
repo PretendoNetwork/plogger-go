@@ -138,8 +138,6 @@ func createFileHandle(path string) *os.File {
 	return f
 }
 
-type Structure struct{}
-
 func getCallerInfo() (string, string, string, string) {
 	pc, file, line, ok := runtime.Caller(3) // step up 3 calls in the goroutine stack to find the function which called the log
 	if ok {
@@ -157,7 +155,7 @@ func getCallerInfo() (string, string, string, string) {
 
 		fileSplit := strings.Split(file, "/")
 		file = fileSplit[len(fileSplit)-1]
-		
+
 		return file, strconv.Itoa(line), function + "()", packageName
 	}
 
