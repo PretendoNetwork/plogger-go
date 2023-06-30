@@ -101,6 +101,26 @@ func (logger *Logger) Info(message string) {
 	logger.logLine(message, infoPrefix, infoPrefixColored, logger.infoLogFile)
 }
 
+func (logger *Logger) Criticalf(message string, a ...any) {
+	logger.Critical(fmt.Sprintf(message, a...))
+}
+
+func (logger *Logger) Errorf(message string, a ...any) {
+	logger.Error(fmt.Sprintf(message, a...))
+}
+
+func (logger *Logger) Warningf(message string, a ...any) {
+	logger.Warning(fmt.Sprintf(message, a...))
+}
+
+func (logger *Logger) Successf(message string, a ...any) {
+	logger.Success(fmt.Sprintf(message, a...))
+}
+
+func (logger *Logger) Infof(message string, a ...any) {
+	logger.Info(fmt.Sprintf(message, a...))
+}
+
 func NewLogger(args ...string) *Logger {
 	var logFolderRoot string
 
