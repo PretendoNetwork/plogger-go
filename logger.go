@@ -102,23 +102,23 @@ func (logger *Logger) Info(message string) {
 }
 
 func (logger *Logger) Criticalf(message string, a ...any) {
-	logger.Critical(fmt.Sprintf(message, a...))
+	logger.logLine(fmt.Sprintf(message, a...), criticalPrefix, criticalPrefixColored, logger.criticalLogFile)
 }
 
 func (logger *Logger) Errorf(message string, a ...any) {
-	logger.Error(fmt.Sprintf(message, a...))
+	logger.logLine(fmt.Sprintf(message, a...), errorPrefix, errorPrefixColored, logger.errorLogFile)
 }
 
 func (logger *Logger) Warningf(message string, a ...any) {
-	logger.Warning(fmt.Sprintf(message, a...))
+	logger.logLine(fmt.Sprintf(message, a...), warningPrefix, warningPrefixColored, logger.warningLogFile)
 }
 
 func (logger *Logger) Successf(message string, a ...any) {
-	logger.Success(fmt.Sprintf(message, a...))
+	logger.logLine(fmt.Sprintf(message, a...), successPrefix, successPrefixColored, logger.successLogFile)
 }
 
 func (logger *Logger) Infof(message string, a ...any) {
-	logger.Info(fmt.Sprintf(message, a...))
+	logger.logLine(fmt.Sprintf(message, a...), infoPrefix, infoPrefixColored, logger.infoLogFile)
 }
 
 func NewLogger(args ...string) *Logger {
