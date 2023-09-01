@@ -45,6 +45,9 @@ var (
 	colorSupported bool = supportscolor.Stdout().SupportsColor
 
 	maxPrefixLength = len(criticalPrefix) // size of the longest prefix, for spacing later on
+
+	LogToStdOut     bool = true
+	LogToFile       bool = true
 )
 
 type Logger struct {
@@ -66,18 +69,22 @@ func (logger *Logger) logLine(message, prefix, prefixColored string, logFile *os
 	logPlain := fmt.Sprintf(logTemplate+"\n", date, prefix, " ", "func "+function, packageName, file, line, message)
 	logPlainSpaced := fmt.Sprintf(logTemplate+"\n", date, prefix, spacing, "func "+function, packageName, file, line, message)
 
-	if colorSupported {
-		fmt.Printf(logTemplate+"\n", grey(date), prefixColored, spacing, magenta("func ")+darkCyan(function), green(packageName), green(file), yellow(line), bold(message))
-	} else {
-		fmt.Println(logPlainSpaced)
+	if LogToStdOut {	
+		if colorSupported {
+			fmt.Printf(logTemplate+"\n", grey(date), prefixColored, spacing, magenta("func ")+darkCyan(function), green(packageName), green(file), yellow(line), bold(message))
+		} else {
+			fmt.Println(logPlainSpaced)
+		}
 	}
+	
+	if LogToFile {
+		if _, err := logFile.WriteString(logPlain); err != nil {
+			log.Println(err)
+		}
 
-	if _, err := logFile.WriteString(logPlain); err != nil {
-		log.Println(err)
-	}
-
-	if _, err := logger.allLogsFile.WriteString(logPlainSpaced); err != nil {
-		log.Println(err)
+		if _, err := logger.allLogsFile.WriteString(logPlainSpaced); err != nil {
+			log.Println(err)
+		}
 	}
 }
 
