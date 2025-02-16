@@ -46,8 +46,8 @@ var (
 
 	maxPrefixLength = len(criticalPrefix) // size of the longest prefix, for spacing later on
 
-	globalLogToStdOut     bool = true
-	globalLogToFile       bool = true
+	globalLogToStdOut bool = true
+	globalLogToFile   bool = true
 )
 
 type Logger struct {
@@ -71,14 +71,14 @@ func (logger *Logger) logLine(message, prefix, prefixColored string, logFile *os
 	logPlain := fmt.Sprintf(logTemplate+"\n", date, prefix, " ", "func "+function, packageName, file, line, message)
 	logPlainSpaced := fmt.Sprintf(logTemplate+"\n", date, prefix, spacing, "func "+function, packageName, file, line, message)
 
-	if globalLogToStdOut && logger.logToStdOut {	
+	if globalLogToStdOut && logger.logToStdOut {
 		if colorSupported {
 			fmt.Printf(logTemplate+"\n", grey(date), prefixColored, spacing, magenta("func ")+darkCyan(function), green(packageName), green(file), yellow(line), bold(message))
 		} else {
 			fmt.Println(logPlainSpaced)
 		}
 	}
-	
+
 	if globalLogToFile && logger.logToFile {
 		if _, err := logFile.WriteString(logPlain); err != nil {
 			log.Println(err)
@@ -138,11 +138,11 @@ func (logger *Logger) SetLogToFile(enable bool) {
 	logger.logToFile = enable
 }
 
-func (logger *Logger) GetLogToStdOut() bool {
+func (logger *Logger) LogToStdOut() bool {
 	return logger.logToStdOut
 }
 
-func (logger *Logger) GetLogToFile() bool {
+func (logger *Logger) LogToFile() bool {
 	return logger.logToFile
 }
 
@@ -154,11 +154,11 @@ func SetGlobalLogToFile(enable bool) {
 	globalLogToFile = enable
 }
 
-func GetGlobalLogToStdOut() bool {
+func GlobalLogToStdOut() bool {
 	return globalLogToStdOut
 }
 
-func GetGlobalLogToFile() bool {
+func GlobalLogToFile() bool {
 	return globalLogToFile
 }
 
