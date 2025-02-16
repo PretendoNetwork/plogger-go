@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/jwalton/go-supportscolor"
 )
 
