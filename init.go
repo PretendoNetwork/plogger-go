@@ -2,6 +2,8 @@ package plogger
 
 import (
 	"os"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func init() {
