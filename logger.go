@@ -14,7 +14,6 @@ import (
 	"github.com/jwalton/go-supportscolor"
 )
 
-// tried to use const here but no worky
 var (
 	flags int = os.O_APPEND | os.O_CREATE | os.O_WRONLY
 
@@ -40,11 +39,11 @@ var (
 	magenta  func(a ...interface{}) string = color.New(color.FgMagenta, color.Bold).SprintFunc()
 	darkCyan func(a ...interface{}) string = color.New(color.FgHiCyan, color.Bold).SprintFunc()
 	green    func(a ...interface{}) string = color.New(color.FgGreen, color.Bold).SprintFunc()
-	yellow   func(a ...interface{}) string = color.New(color.FgHiYellow, color.Bold).SprintFunc() // this ends up red-ish for some reason?
+	yellow   func(a ...interface{}) string = color.New(color.FgHiYellow, color.Bold).SprintFunc()
 
 	colorSupported bool = supportscolor.Stdout().SupportsColor
 
-	maxPrefixLength = len(criticalPrefix) // size of the longest prefix, for spacing later on
+	maxPrefixLength = len(criticalPrefix) // * Size of the longest prefix, for spacing later on
 
 	globalLogToStdOut bool = true
 	globalLogToFile   bool = true
@@ -202,9 +201,9 @@ func createFileHandle(path string) *os.File {
 }
 
 func getCallerInfo() (string, string, string, string) {
-	pc, file, line, ok := runtime.Caller(3) // step up 3 calls in the goroutine stack to find the function which called the log
+	pc, file, line, ok := runtime.Caller(3) // * Step up 3 calls in the call stack to find the function which called the log
 	if ok {
-		// https://stackoverflow.com/a/56960913
+		// * https://stackoverflow.com/a/56960913
 		parts := strings.Split(runtime.FuncForPC(pc).Name(), ".")
 		partsLength := len(parts)
 		packageName := ""
