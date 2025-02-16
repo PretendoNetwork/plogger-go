@@ -14,7 +14,6 @@ import (
 	"github.com/jwalton/go-supportscolor"
 )
 
-// tried to use const here but no worky
 var (
 	flags int = os.O_APPEND | os.O_CREATE | os.O_WRONLY
 
@@ -40,11 +39,14 @@ var (
 	magenta  func(a ...interface{}) string = color.New(color.FgMagenta, color.Bold).SprintFunc()
 	darkCyan func(a ...interface{}) string = color.New(color.FgHiCyan, color.Bold).SprintFunc()
 	green    func(a ...interface{}) string = color.New(color.FgGreen, color.Bold).SprintFunc()
-	yellow   func(a ...interface{}) string = color.New(color.FgHiYellow, color.Bold).SprintFunc() // this ends up red-ish for some reason?
+	yellow   func(a ...interface{}) string = color.New(color.FgHiYellow, color.Bold).SprintFunc()
 
 	colorSupported bool = supportscolor.Stdout().SupportsColor
 
-	maxPrefixLength = len(criticalPrefix) // size of the longest prefix, for spacing later on
+	maxPrefixLength = len(criticalPrefix) // * Size of the longest prefix, for spacing later on
+
+	globalLogToStdOut bool = true
+	globalLogToFile   bool = true
 )
 
 type Logger struct {
@@ -54,6 +56,8 @@ type Logger struct {
 	warningLogFile  *os.File
 	successLogFile  *os.File
 	infoLogFile     *os.File
+	logToStdOut     bool
+	logToFile       bool
 }
 
 func (logger *Logger) logLine(message, prefix, prefixColored string, logFile *os.File) {
@@ -66,18 +70,22 @@ func (logger *Logger) logLine(message, prefix, prefixColored string, logFile *os
 	logPlain := fmt.Sprintf(logTemplate+"\n", date, prefix, " ", "func "+function, packageName, file, line, message)
 	logPlainSpaced := fmt.Sprintf(logTemplate+"\n", date, prefix, spacing, "func "+function, packageName, file, line, message)
 
-	if colorSupported {
-		fmt.Printf(logTemplate+"\n", grey(date), prefixColored, spacing, magenta("func ")+darkCyan(function), green(packageName), green(file), yellow(line), bold(message))
-	} else {
-		fmt.Println(logPlainSpaced)
+	if globalLogToStdOut && logger.logToStdOut {
+		if colorSupported {
+			fmt.Printf(logTemplate+"\n", grey(date), prefixColored, spacing, magenta("func ")+darkCyan(function), green(packageName), green(file), yellow(line), bold(message))
+		} else {
+			fmt.Println(logPlainSpaced)
+		}
 	}
 
-	if _, err := logFile.WriteString(logPlain); err != nil {
-		log.Println(err)
-	}
+	if globalLogToFile && logger.logToFile {
+		if _, err := logFile.WriteString(logPlain); err != nil {
+			log.Println(err)
+		}
 
-	if _, err := logger.allLogsFile.WriteString(logPlainSpaced); err != nil {
-		log.Println(err)
+		if _, err := logger.allLogsFile.WriteString(logPlainSpaced); err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -121,6 +129,38 @@ func (logger *Logger) Infof(message string, a ...any) {
 	logger.logLine(fmt.Sprintf(message, a...), infoPrefix, infoPrefixColored, logger.infoLogFile)
 }
 
+func (logger *Logger) SetLogToStdOut(enable bool) {
+	logger.logToStdOut = enable
+}
+
+func (logger *Logger) SetLogToFile(enable bool) {
+	logger.logToFile = enable
+}
+
+func (logger *Logger) LogToStdOut() bool {
+	return logger.logToStdOut
+}
+
+func (logger *Logger) LogToFile() bool {
+	return logger.logToFile
+}
+
+func SetGlobalLogToStdOut(enable bool) {
+	globalLogToStdOut = enable
+}
+
+func SetGlobalLogToFile(enable bool) {
+	globalLogToFile = enable
+}
+
+func GlobalLogToStdOut() bool {
+	return globalLogToStdOut
+}
+
+func GlobalLogToFile() bool {
+	return globalLogToFile
+}
+
 func NewLogger(args ...string) *Logger {
 	var logFolderRoot string
 
@@ -144,6 +184,8 @@ func NewLogger(args ...string) *Logger {
 		warningLogFile:  createFileHandle(filepath.Join(logFolderPath, "warning.log")),
 		successLogFile:  createFileHandle(filepath.Join(logFolderPath, "success.log")),
 		infoLogFile:     createFileHandle(filepath.Join(logFolderPath, "info.log")),
+		logToStdOut:     true,
+		logToFile:       true,
 	}
 
 	return logger
@@ -159,9 +201,9 @@ func createFileHandle(path string) *os.File {
 }
 
 func getCallerInfo() (string, string, string, string) {
-	pc, file, line, ok := runtime.Caller(3) // step up 3 calls in the goroutine stack to find the function which called the log
+	pc, file, line, ok := runtime.Caller(3) // * Step up 3 calls in the call stack to find the function which called the log
 	if ok {
-		// https://stackoverflow.com/a/56960913
+		// * https://stackoverflow.com/a/56960913
 		parts := strings.Split(runtime.FuncForPC(pc).Name(), ".")
 		partsLength := len(parts)
 		packageName := ""
