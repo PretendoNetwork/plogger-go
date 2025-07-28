@@ -50,6 +50,7 @@ var (
 )
 
 type Logger struct {
+	LogLevel        logLevel
 	allLogsFile     *os.File
 	criticalLogFile *os.File
 	errorLogFile    *os.File
